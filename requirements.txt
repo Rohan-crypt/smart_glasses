@@ -1,9 +1,19 @@
-streamlit
-whisper
-openai-whisper
+# Core AI / NLP components
+openai-whisper==20231117
+spacy==3.7.2
+sentence-transformers==2.2.2
 chromadb
-spacy
-sentence-transformers
-torch
+pydantic<3.0
 numpy
+ffmpeg-python
+
+# For handling embeddings, text, etc.
+tqdm
 pandas
+
+# For API / UI layer (if using Streamlit or Flask)
+streamlit==1.29.0
+
+# Optional utilities
+requests
+typing-extensions

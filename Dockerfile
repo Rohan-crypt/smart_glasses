@@ -1,20 +1,37 @@
-# Use official Python image
+# Use a small, optimized base image
 FROM python:3.10-slim
+
+# Disable bytecode generation and buffering for cleaner logs
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install minimal system dependencies (for Whisper, ffmpeg, etc.)
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for Whisper and spaCy
-RUN apt-get update && apt-get install -y ffmpeg git && rm -rf /var/lib/apt/lists/*
+# Copy only dependency files first for layer caching
+COPY requirements.txt .
 
-# Copy project files
-COPY . .
-
-# Install Python packages
+# Install dependencies without cache to keep image size small
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port for Streamlit
-EXPOSE 8501
+# Download small language/model resources ahead of time (optional)
+# This prevents runtime downloads during deployment
+RUN python -m spacy download en_core_web_sm || true
 
-# Command to run Streamlit app
-CMD ["streamlit", "run", "app/main.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Copy the rest of the app
+COPY . .
+
+# Environment variable for Railway or Render
+ENV PORT=8080
+
+# Expose port (helps for local Docker testing)
+EXPOSE 8080
+
+# Default command (you can adjust if entrypoint file differs)
+CMD ["python", "main.py"]
