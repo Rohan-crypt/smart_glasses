@@ -1,0 +1,9 @@
+streamlit
+whisper
+openai-whisper
+chromadb
+spacy
+sentence-transformers
+torch
+numpy
+pandas
